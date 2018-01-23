@@ -63,8 +63,15 @@ inow = next((i for i, x in enumerate(relh) if x<0), None) - 1
 # Convert RH to Td
 tair = np.array(tair)
 relh = np.array(relh)
+wspd = np.array(wspd)
 td = np.array(mcalc.dewpoint_rh(tair[:inow+1] * units.degC, 
 	relh[:inow+1] / 100.))
+wspd_kts = wspd * 1.94
+tair_F = tair * 1.8 + 32.
+td_F = td * 1.8 + 32.
+
+# Calculate Wind Chill
+#wchl = mcalc.windchill(tair_F[:inow+1]*units.degF, wspd_kts[:inow+1]*units.kts)
 
 # Convert latest timestep to datetime object
 delta_latest = timedelta(minutes=time[inow])
@@ -96,28 +103,32 @@ figtitle = 'NWC Mesonet Meteogram for %s' % datetime.strftime(dt_now,
 plt.suptitle(figtitle, fontsize=20)
 
 # T & Td
-axarr[0].plot(t_all[:inow+1], tair[:inow+1], 'r')
-axarr[0].plot(t_all[:inow+1], td[:inow+1], 'g')
+axarr[0].plot(t_all[:inow+1], tair_F[:inow+1], 'r')
+#axarr[0].plot(t_all[:inow+1], wchl, 'b')
+axarr[0].plot(t_all[:inow+1], td_F, 'g')
 axarr[0].set_title('Temperature and Dewpoint')
 axarr[0].tick_params(labeltop=False, right = True, labelright=True)
-axarr[0].set_ylabel('Temperature ($^\circ$C)')
+axarr[0].set_ylabel('Temperature ($^\circ$F)')
+axarr[0].grid(axis='y')
 
 # p
 axarr[1].plot(t_all[:inow+1], pres[:inow+1], 'k')
 axarr[1].set_title('Pressure')
 axarr[1].tick_params(labeltop=False, right = True, labelright=True)
 axarr[1].set_ylabel('Pressure (hPa)')
+axarr[1].grid(axis='y')
 
 # wind speed and direction
 axarr_2 = axarr[2].twinx()
-axarr[2].plot(t_all[:inow+1], wspd[:inow+1], 'b')
+axarr[2].plot(t_all[:inow+1], wspd_kts[:inow+1], 'b')
 axarr_2.plot(t_all[:inow+1], wdir[:inow+1], 'r*', markersize=1)
 axarr[2].set_title('Wind Speed and Direction')
-axarr[2].set_ylabel('Wind Speed (m s$^{-1}$)', color='b')
+axarr[2].set_ylabel('Wind Speed (kts)', color='b')
 axarr_2.set_ylabel('Wind Direction ($^\circ$)', color='r')
 axarr[2].xaxis.set_major_locator(mpdates.MinuteLocator(interval=60))
 axarr[2].xaxis.set_major_formatter(mpdates.DateFormatter('%H'))
 axarr[2].set_xlabel('Time UTC')
+axarr[2].grid(axis='y')
 
 # Show Plot
 plt.show()
