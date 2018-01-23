@@ -3,6 +3,8 @@ import urllib2
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mpdates
+import metpy.calc as mcalc
+from metpy.units import units
 
 '''
 Fetches 1-minute data from National Weather Center Mesonet tower.
@@ -57,7 +59,13 @@ for i in range(1440):
 # Find latest valid timestep
 inow = next((i for i, x in enumerate(relh) if x<0), None) - 1
 
-# Convert this timestep to datetime object
+# Convert RH to Td
+tair = np.array(tair)
+relh = np.array(relh)
+td = np.array(mcalc.dewpoint_rh(tair[:inow+1] * units.degC, 
+	relh[:inow+1] / 100.))
+
+# Convert latest timestep to datetime object
 delta_latest = timedelta(minutes=time[inow])
 dt_base = datetime(yr, mo, da)
 dt_latest = dt_base + delta_latest
@@ -76,13 +84,42 @@ print 'Current conditions at NWC Mesonet:'
 print 'Date: %s' % (datetime.strftime(dt_latest, '%A, %d %B %Y'))
 print 'Time: %s' % (datetime.strftime(dt_latest, '%H:%M UTC'))
 print 'Temperature: %3.1fC' % tair[inow]
-print 'Relative Humidity: %.0f%%' % relh[inow]
+print 'Dewpoint: %3.1fC' % td[inow]
 print 'Wind Speed: %3.1f m s-1' % wspd[inow]
 print 'Wind Direction: %.0f deg' % wdir[inow]
 
-# Plot time series of T, RH, wspd, wdir
+# Plot time series of T, Td, p, wspd, wdir
 fig1, axarr = plt.subplots(4, sharex=True, figsize=(10,10))
-axarr[0].plot(t_all[:inow+1], tair[:inow+1])
+
+# T & Td
+axarr[0].plot(t_all[:inow+1], tair[:inow+1], 'r')
+axarr[0].plot(t_all[:inow+1], td[:inow+1], 'g')
+axarr[0].set_title('Temperature and Dewpoint')
+axarr[0].tick_params(labeltop=False, right = True, labelright=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
