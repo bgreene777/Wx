@@ -63,7 +63,7 @@ dt_base = datetime(yr, mo, da)
 dt_latest = dt_base + delta_latest
 
 # Create matplotlib dates
-dt_all = np.zeros((len(time), 1))
+dt_all = [None] * len(time)
 dt_all[0] = dt_base
 delta_min = timedelta(minutes=1)
 for i in np.arange(1, len(time)):
