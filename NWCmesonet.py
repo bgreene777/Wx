@@ -14,7 +14,7 @@ T, Td, wind speed, and wind direction.
 
 Written by Brian Greene
 University of Oklahoma
-Last edit: 22 Jan 2018
+Last edit: 23 Jan 2018
 '''
 
 # Base URL
@@ -111,7 +111,7 @@ axarr[1].set_ylabel('Pressure (hPa)')
 # wind speed and direction
 axarr_2 = axarr[2].twinx()
 axarr[2].plot(t_all[:inow+1], wspd[:inow+1], 'b')
-axarr_2.plot(t_all[:inow+1], wdir[:inow+1], 'r*')
+axarr_2.plot(t_all[:inow+1], wdir[:inow+1], 'r*', markersize=1)
 axarr[2].set_title('Wind Speed and Direction')
 axarr[2].set_ylabel('Wind Speed (m s$^{-1}$)', color='b')
 axarr_2.set_ylabel('Wind Direction ($^\circ$)', color='r')
