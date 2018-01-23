@@ -1,7 +1,6 @@
 import numpy as np
 import urllib2
 from datetime import datetime, timedelta
-from time import sleep
 import matplotlib.pyplot as plt
 import matplotlib.dates as mpdates
 import metpy.calc as mcalc
@@ -127,7 +126,7 @@ axarr[2].set_ylabel('Wind Speed (kts)', color='b')
 axarr_2.set_ylabel('Wind Direction ($^\circ$)', color='r')
 axarr[2].grid(axis='y')
 
-# wind speed and direction
+# solar radiation
 axarr[3].plot(t_all[:inow+1], srad[:inow+1], 'orange')
 axarr[3].set_title('Solar Radiation')
 axarr[3].set_ylabel('Solar Radiation (W m$^{-2}$)')
