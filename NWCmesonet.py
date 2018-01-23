@@ -1,6 +1,7 @@
 import numpy as np
 import urllib2
 from datetime import datetime, timedelta
+from time import sleep
 import matplotlib.pyplot as plt
 import matplotlib.dates as mpdates
 import metpy.calc as mcalc
@@ -89,39 +90,35 @@ print 'Wind Speed: %3.1f m s-1' % wspd[inow]
 print 'Wind Direction: %.0f deg' % wdir[inow]
 
 # Plot time series of T, Td, p, wspd, wdir
-fig1, axarr = plt.subplots(4, sharex=True, figsize=(10,10))
+fig1, axarr = plt.subplots(3, sharex=True, figsize=(10,8))
+figtitle = 'NWC Mesonet Meteogram for %s' % datetime.strftime(dt_now,
+	'%d %B %Y')
+plt.suptitle(figtitle, fontsize=20)
 
 # T & Td
 axarr[0].plot(t_all[:inow+1], tair[:inow+1], 'r')
 axarr[0].plot(t_all[:inow+1], td[:inow+1], 'g')
 axarr[0].set_title('Temperature and Dewpoint')
 axarr[0].tick_params(labeltop=False, right = True, labelright=True)
+axarr[0].set_ylabel('Temperature ($^\circ$C)')
 
+# p
+axarr[1].plot(t_all[:inow+1], pres[:inow+1], 'k')
+axarr[1].set_title('Pressure')
+axarr[1].tick_params(labeltop=False, right = True, labelright=True)
+axarr[1].set_ylabel('Pressure (hPa)')
 
+# wind speed and direction
+axarr_2 = axarr[2].twinx()
+axarr[2].plot(t_all[:inow+1], wspd[:inow+1], 'b')
+axarr_2.plot(t_all[:inow+1], wdir[:inow+1], 'r*')
+axarr[2].set_title('Wind Speed and Direction')
+axarr[2].set_ylabel('Wind Speed (m s$^{-1}$)', color='b')
+axarr_2.set_ylabel('Wind Direction ($^\circ$)', color='r')
+axarr[2].xaxis.set_major_locator(mpdates.MinuteLocator(interval=60))
+axarr[2].xaxis.set_major_formatter(mpdates.DateFormatter('%H'))
+axarr[2].set_xlabel('Time UTC')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Show Plot
 plt.show()
 
