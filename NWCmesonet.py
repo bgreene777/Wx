@@ -97,7 +97,7 @@ print 'Wind Speed: %3.1f m s-1' % wspd[inow]
 print 'Wind Direction: %.0f deg' % wdir[inow]
 
 # Plot time series of T, Td, p, wspd, wdir
-fig1, axarr = plt.subplots(3, sharex=True, figsize=(10,8))
+fig1, axarr = plt.subplots(4, sharex=True, figsize=(10,10))
 figtitle = 'NWC Mesonet Meteogram for %s' % datetime.strftime(dt_now,
 	'%d %B %Y')
 plt.suptitle(figtitle, fontsize=20)
@@ -125,10 +125,16 @@ axarr_2.plot(t_all[:inow+1], wdir[:inow+1], 'r*', markersize=1)
 axarr[2].set_title('Wind Speed and Direction')
 axarr[2].set_ylabel('Wind Speed (kts)', color='b')
 axarr_2.set_ylabel('Wind Direction ($^\circ$)', color='r')
-axarr[2].xaxis.set_major_locator(mpdates.MinuteLocator(interval=60))
-axarr[2].xaxis.set_major_formatter(mpdates.DateFormatter('%H'))
-axarr[2].set_xlabel('Time UTC')
 axarr[2].grid(axis='y')
+
+# wind speed and direction
+axarr[3].plot(t_all[:inow+1], srad[:inow+1], 'orange')
+axarr[3].set_title('Solar Radiation')
+axarr[3].set_ylabel('Solar Radiation (W m$^{-2}$)')
+axarr[3].xaxis.set_major_locator(mpdates.MinuteLocator(interval=60))
+axarr[3].xaxis.set_major_formatter(mpdates.DateFormatter('%H'))
+axarr[3].set_xlabel('Time UTC')
+axarr[3].grid(axis='y')
 
 # Show Plot
 plt.show()
