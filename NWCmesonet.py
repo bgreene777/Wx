@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mpdates
 import metpy.calc as mcalc
 from metpy.units import units
+import csv
 
 '''
 Fetches 1-minute data from National Weather Center Mesonet tower.
@@ -15,6 +16,8 @@ Written by Brian Greene
 University of Oklahoma
 Last edit: 23 Jan 2018
 '''
+# Location to save output files
+saveDir = '/Users/briangreene/Desktop/'
 
 # Base URL
 base_URL = 'http://www.mesonet.org/data/public/nwc/mts-1m/'
@@ -136,5 +139,24 @@ axarr[3].set_xlabel('Time UTC')
 axarr[3].grid(axis='y')
 
 # Show Plot
-plt.show()
+plt.show(block=False)
+
+# Save CSV
+s = raw_input('>>Save csv? y/n ')
+while s != 'y' and s != 'n':
+    s = raw_input('>>Save csv? y/n ')
+if s == 'y':
+    saveFileName = '%s%s.%s.1min.csv' % (saveDir, datetime.strftime(dt_latest, 
+    	'%Y%m%d'), 'NWCM')
+    headers = ('time', 'relh', 'tair', 'wspd', 'wdir', 'wmax', 'rain', 'pres', 
+    	'srad', 'ta9m', 'ws2m', 'skin')
+    fw = open(saveFileName,'wb')
+    writer = csv.writer(fw, delimiter=',')
+    writer.writerow(headers)
+    for i in range(1440):
+        writer.writerow( (time[i], relh[i], tair[i], wspd[i], wdir[i], wmax[i], 
+        	rain[i], pres[i], srad[i], ta9m[i], ws2m[i], skin[i]) )
+
+    fw.close()
+    print 'Finished saving %s' % saveFileName.split('/')[-1]
 
