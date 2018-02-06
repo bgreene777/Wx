@@ -139,7 +139,7 @@ axarr[3].set_xlabel('Time UTC')
 axarr[3].grid(axis='y')
 
 # Show Plot
-plt.show(block=False)
+plt.show()
 
 # Save CSV
 s = raw_input('>>Save csv? y/n ')
@@ -160,3 +160,4 @@ if s == 'y':
     fw.close()
     print 'Finished saving %s' % saveFileName.split('/')[-1]
 
+plt.close('all')
