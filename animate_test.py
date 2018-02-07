@@ -1,30 +1,60 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
+from time import time
 
-'''
-Animated ball trajectory
-'''
+class RaceCar:
+	def __init__(self, v=1., origin=(0, 0), theta=0., r=2.):
+		self.speed_init = v
+		self.origin = origin
+		self.theta_init = theta
+		self.time_elapsed = 0.
+		self.radius = r
 
-# First set up the figure, the axis, and the plot element we want to animate
+		self.theta = self.theta_init * np.pi / 180.
+
+	def position(self):
+		x = self.radius * np.cos(self.theta)
+		y = self.radius * np.sin(self.theta)
+
+		return (x, y)
+
+	def step(self, dt):
+		omega = self.speed_init / self.radius
+		self.theta += omega * dt
+		self.time_elapsed += dt
+
+
+car = RaceCar()
+dt = 1./30
+
 fig = plt.figure()
-ax = plt.axes(xlim=(0, 10), ylim=(0, 100))
-line, = ax.plot([], [], '-o', lw=2)
+ax = fig.add_subplot(111, aspect='equal', autoscale_on=False,
+                     xlim=(-3, 3), ylim=(-3, 3))
 
-# initialization function: plot the background of each frame
+line, = ax.plot([], [], 'o-', lw=2)
+
 def init():
+    """initialize animation"""
     line.set_data([], [])
     return line,
 
-# animation function.  This is called sequentially
 def animate(i):
-    t = np.arange(0, i)
-    y = 30 * t - 0.5 * 9.8 * t**2
-    line.set_data(t, y)
-    return line,
+    """perform animation step"""
+    global car, dt
+    car.step(dt)
+    
+    line.set_data(*car.position())
+    return line, 
 
-# call the animator.  blit=True means only re-draw the parts that have changed.
-anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=200, interval=20, blit=True)
+# choose the interval based on dt and the time to animate one step
+t0 = time()
+animate(0)
+t1 = time()
+interval = 1000 * dt - (t1 - t0)
+
+ani = animation.FuncAnimation(fig, animate, frames=300,
+                              interval=interval, blit=False, init_func=init)
 
 plt.show()
+
