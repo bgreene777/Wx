@@ -189,3 +189,4 @@ x = range(len(Temps))
 rootgrp.close()
 
 print '>>File created successfully'
+print '>>Time valid: {0:s}'.format(timeValid_str)

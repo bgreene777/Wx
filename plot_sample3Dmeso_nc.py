@@ -1,6 +1,6 @@
 import time
 t0 = time.time()
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
@@ -65,7 +65,7 @@ x1, y1 = m(station_lons, station_lats)
 ####################
 # Convert Datetime #
 ####################
-dtValid = datetime.strptime(timeValid, '%Y%m%d_%H%M')
+dtValid = datetime.strptime(timeValid, '%Y%m%d_%H%M') + timedelta(hours=1)
 dtValid_str = dtValid.strftime('%d %b %Y %H:%M')
 
 ########
@@ -106,5 +106,9 @@ cbar.ax.set_ylabel('Dewpoint Temperature ($^\circ$F)')
 m.drawcounties()
 m.drawstates()
 print 'Total run time: %s seconds' % (time.time() - t0)
-plt.show()
+#plt.show()
 
+
+saveNameBase = '{0}.png'.format(dtValid.strftime('%H%M'))
+dirSave = '/Users/briangreene/Desktop/Mesonet_Td_20180405/'
+fig_map.savefig(dirSave + saveNameBase)
