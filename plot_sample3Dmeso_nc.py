@@ -75,18 +75,20 @@ dtValid_str = dtValid.strftime('%d %b %Y %H:%M')
 # Contour fill
 # vmin = np.nanmin(T)
 # vmax = np.nanmax(T)
-vmin = -10.
-vmax = 110.
+# vmin = -10.
+# vmax = 110.
+vmin = 10.
+vmax = 70.
 
-cfax = m.pcolormesh(xplot, yplot, Tplot, cmap=plt.get_cmap('nipy_spectral'), 
-	vmin=vmin, vmax=vmax)
-# cfax = m.pcolormesh(xplot, yplot, Tplot, cmap=cmocean.cm.thermal, 
+# cfax = m.pcolormesh(xplot, yplot, Tplot, cmap=plt.get_cmap('nipy_spectral'), 
 # 	vmin=vmin, vmax=vmax)
+cfax = m.pcolormesh(xplot, yplot, Tplot, cmap=cmocean.cm.speed, 
+	vmin=vmin, vmax=vmax)
 cbar = m.colorbar(cfax)
 
 # Freezing line
-Tfreeze = np.array([32.0])
-cax1 = m.contour(xplot, yplot, Tplot, levels=Tfreeze, colors='r')
+# Tfreeze = np.array([32.0])
+# cax1 = m.contour(xplot, yplot, Tplot, levels=Tfreeze, colors='r')
 
 # Station values
 for i in np.arange(len(Tstation)):
@@ -97,10 +99,9 @@ for i in np.arange(len(Tstation)):
 		foreground='w')])
 
 # Labels
-title_str = 'Oklahoma Mesonet Temerature - %s CST - Level %d' % (dtValid_str, 
-	plotlevel)
+title_str = 'Oklahoma Mesonet Dewpoint Temerature - %s CST' % (dtValid_str)
 ax_map.set_title(title_str)
-cbar.ax.set_ylabel('Temperature ($^\circ$F)')
+cbar.ax.set_ylabel('Dewpoint Temperature ($^\circ$F)')
 
 m.drawcounties()
 m.drawstates()

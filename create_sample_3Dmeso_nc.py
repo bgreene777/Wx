@@ -36,7 +36,7 @@ gridspace = 0.01
 # Initialize map
 fig_map, ax_map = plt.subplots(1, figsize=(12, 6.75))
 m = Basemap(projection='merc', llcrnrlat=llcrnrlat, urcrnrlat=urcrnrlat, 
-    llcrnrlon=llcrnrlon, urcrnrlon=urcrnrlon, resolution='l', ax=ax_map)
+    llcrnrlon=llcrnrlon, urcrnrlon=urcrnrlon, resolution='i', ax=ax_map)
 
 # Draw patches over not Oklahoma
 shapefile = my_nextcloud + 'documentation/States/states_21basic/states'
@@ -75,7 +75,7 @@ for i in np.arange(1, len(data)-1):
 	da_.append(float(data_short[7]))
 	hr_.append(float(data_short[8]))
 	mi_.append(float(data_short[9]))
-	T_.append(data_short[10])
+	T_.append(data_short[11])
 
 for i in np.arange(len(T_)):
 	if T_[i] != ' ':
