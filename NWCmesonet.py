@@ -90,13 +90,13 @@ for i in np.arange(1, len(time)):
 t_all = mpdates.date2num(dt_all)
 
 # Print current conditions
-print 'Current conditions at NWC Mesonet:'
-print 'Date: %s' % (datetime.strftime(dt_latest, '%A, %d %B %Y'))
-print 'Time: %s' % (datetime.strftime(dt_latest, '%H:%M UTC'))
-print 'Temperature: %3.1fC' % tair[inow]
-print 'Dewpoint: %3.1fC' % td[inow]
-print 'Wind Speed: %3.1f m s-1' % wspd[inow]
-print 'Wind Direction: %.0f deg' % wdir[inow]
+print('Current conditions at NWC Mesonet:')
+print('Date: %s'.format(datetime.strftime(dt_latest, '%A, %d %B %Y')))
+print('Time: %s'.format(datetime.strftime(dt_latest, '%H:%M UTC')))
+print('Temperature: {0:3.1f}C'.format(tair[inow]))
+print('Dewpoint: {0:3.1f}C'.format(td[inow]))
+print('Wind Speed: {0:3.1f} m s-1'.format(wspd[inow]))
+print('Wind Direction: {0:.0f} deg'.format(wdir[inow]))
 
 # Plot time series of T, Td, p, wspd, wdir
 fig1, axarr = plt.subplots(4, sharex=True, figsize=(10,10))
@@ -158,6 +158,6 @@ if s == 'y':
         	rain[i], pres[i], srad[i], ta9m[i], ws2m[i], skin[i]) )
 
     fw.close()
-    print 'Finished saving %s' % saveFileName.split('/')[-1]
+    print('Finished saving {}'.format(saveFileName.split('/')[-1]))
 
 plt.close('all')
