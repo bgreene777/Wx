@@ -34,6 +34,10 @@ parser.add_argument('-si', required=True, action='store', dest='SI',
     nargs=1, help='Use SI units? True or False')
 args = parser.parse_args()
 
+# Logo
+logo_path = '/Users/briangreene/Desktop/mesonet_logo.png'
+logo = plt.imread(logo_path)
+
 # Location to save output files and figures
 if args.fig[0].upper() == 'TRUE':
     saveFig = True
@@ -193,6 +197,9 @@ axarr[3].xaxis.set_major_locator(mpdates.MinuteLocator(interval=60))
 axarr[3].xaxis.set_major_formatter(mpdates.DateFormatter('%H'))
 axarr[3].set_xlabel('Time UTC')
 axarr[3].grid(axis='y')
+
+# add logo
+fig1.figimage(logo, 50, 1350, zorder=100)
 
 # Save CSV
 if saveFile:
