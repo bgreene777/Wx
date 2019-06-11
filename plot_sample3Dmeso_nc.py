@@ -106,5 +106,9 @@ cbar.ax.set_ylabel('Dewpoint Temperature ($^\circ$F)')
 m.drawcounties()
 m.drawstates()
 print 'Total run time: %s seconds' % (time.time() - t0)
-plt.show()
+#plt.show()
 
+
+saveNameBase = '{0}.png'.format(dtValid.strftime('%H%M'))
+dirSave = '/Users/briangreene/Desktop/Mesonet_Td_20180405/'
+fig_map.savefig(dirSave + saveNameBase)

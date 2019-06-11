@@ -1,12 +1,3 @@
-import numpy as np
-import urllib2
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-import matplotlib.dates as mpdates
-import metpy.calc as mcalc
-from metpy.units import units
-import csv
-
 '''
 Fetches 1-minute data from National Weather Center Mesonet tower.
 Displays most recent observations as well as a time series of current day's
@@ -14,16 +5,47 @@ T, Td, wind speed, and wind direction.
 
 Written by Brian Greene
 University of Oklahoma
-Last edit: 23 Jan 2018
+Last edit: 10 June 2019
+Updated for use with Python 3, includes command line arguments
 '''
+
+import numpy as np
+import urllib3
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
+import matplotlib.dates as mpdates
+import metpy.calc as mcalc
+from metpy.units import units
+import csv
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument('-n', required=True, action='store', dest='now', nargs=1,
+    help='Use current observations? True or False')
+parser.add_argument('-d', required=False, action='store', dest='date', nargs=1,
+    help='Input date as yyyymmdd, or leave blank for latest observations')
+parser.add_argument('-f', required=True, action='store', dest='fig', nargs=1,
+    help='Save figure? True or False')
+parser.add_argument('-s', required=True, action='store', dest='file', nargs=1,
+    help='Save file? True or False')
+args = parser.parse_args()
+
 # Location to save output files
 saveDir = '/Users/briangreene/Desktop/'
 
 # Base URL
 base_URL = 'http://www.mesonet.org/data/public/nwc/mts-1m/'
+http = urllib3.PoolManager()
 
 # Find today's date and time
-dt_now = datetime.utcnow()
+if args.now[0].upper() == 'TRUE':
+    now = True
+    dt_now = datetime.utcnow()
+else:
+    now = False
+    d = args.date[0]
+    dt_now = datetime(int(d[0:4]), int(d[4:6]), int(d[6:8]))
+
 yr = dt_now.year
 mo = dt_now.month
 da = dt_now.day
@@ -31,13 +53,12 @@ hr = dt_now.hour
 mi = dt_now.minute
 
 # Construct url for mts file
-mts_URL = '%s%d/%02d/%02d/%d%02d%02dnwcm.mts' % (base_URL, yr, mo, da, 
-	yr, mo, da)
+mts_URL = '{0:s}{1:d}/{2:02d}/{3:02d}/{4:d}{5:02d}{6:02d}nwcm.mts'.format(
+    base_URL, yr, mo, da, yr, mo, da)
 
 # Fetch data
-f = urllib2.urlopen(mts_URL)
-df = f.read()
-df_line = df.split('\n')
+df = http.request('GET', mts_URL)
+df_line = df.data.decode('ascii').split('\n')
 df_line = df_line[3:-1]
 
 # Load into arrays
@@ -60,7 +81,10 @@ for i in range(1440):
 	skin.append(float(data_short[13]))
 
 # Find latest valid timestep
-inow = next((i for i, x in enumerate(relh) if x<0), None) - 1
+if now:
+    inow = next((i for i, x in enumerate(relh) if x<0), None) - 1
+else:
+    inow = -2
 
 # Convert RH to Td
 tair = np.array(tair)
@@ -90,18 +114,18 @@ for i in np.arange(1, len(time)):
 t_all = mpdates.date2num(dt_all)
 
 # Print current conditions
-print 'Current conditions at NWC Mesonet:'
-print 'Date: %s' % (datetime.strftime(dt_latest, '%A, %d %B %Y'))
-print 'Time: %s' % (datetime.strftime(dt_latest, '%H:%M UTC'))
-print 'Temperature: %3.1fC' % tair[inow]
-print 'Dewpoint: %3.1fC' % td[inow]
-print 'Wind Speed: %3.1f m s-1' % wspd[inow]
-print 'Wind Direction: %.0f deg' % wdir[inow]
+print('Current conditions at NWC Mesonet:')
+print('Date: {0:s}'.format(datetime.strftime(dt_latest, '%A, %d %B %Y')))
+print('Time: {0:s}'.format(datetime.strftime(dt_latest, '%H:%M UTC')))
+print('Temperature: {0:3.1f}C'.format(tair[inow]))
+print('Dewpoint: {0:3.1f}C'.format(td[inow]))
+print('Wind Speed: {0:3.1f} m s-1'.format(wspd[inow]))
+print('Wind Direction: {0:.0f} deg'.format(wdir[inow]))
 
 # Plot time series of T, Td, p, wspd, wdir
 fig1, axarr = plt.subplots(4, sharex=True, figsize=(10,10))
-figtitle = 'NWC Mesonet Meteogram for %s' % datetime.strftime(dt_now,
-	'%d %B %Y')
+figtitle = 'NWC Mesonet Meteogram for {0:s}'.format(datetime.strftime(dt_now,
+	'%d %B %Y'))
 plt.suptitle(figtitle, fontsize=20)
 
 # T & Td
@@ -158,6 +182,6 @@ if s == 'y':
         	rain[i], pres[i], srad[i], ta9m[i], ws2m[i], skin[i]) )
 
     fw.close()
-    print 'Finished saving %s' % saveFileName.split('/')[-1]
+    print('Finished saving {}'.format(saveFileName.split('/')[-1]))
 
 plt.close('all')
