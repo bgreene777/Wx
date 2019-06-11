@@ -1,6 +1,6 @@
 import time
 t0 = time.time()
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
@@ -65,7 +65,7 @@ x1, y1 = m(station_lons, station_lats)
 ####################
 # Convert Datetime #
 ####################
-dtValid = datetime.strptime(timeValid, '%Y%m%d_%H%M')
+dtValid = datetime.strptime(timeValid, '%Y%m%d_%H%M') + timedelta(hours=1)
 dtValid_str = dtValid.strftime('%d %b %Y %H:%M')
 
 ########
