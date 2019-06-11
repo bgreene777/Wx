@@ -200,7 +200,7 @@ axarr[3].set_xlabel('Time UTC')
 axarr[3].grid(axis='y')
 
 # add logo
-fig1.figimage(logo, 50, 1350, zorder=100)
+fig1.figimage(logo, 50, 0, zorder=100)
 
 # Save CSV
 if saveFile:
