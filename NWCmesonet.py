@@ -106,21 +106,28 @@ else:
 tair = np.array(tair) * units.degC
 relh = np.array(relh)
 wspd = np.array(wspd) * units.m / units.s
-td = np.array(mcalc.dewpoint_rh(tair[:inow+1], relh[:inow+1] / 100.))
+td = mcalc.dewpoint_rh(tair[:inow+1], relh[:inow+1] / 100.)
 
 if args.SI[0].upper() == 'TRUE':
     # already in SI, just grab magnitudes
+    print('--Using SI Units--')
     tair = tair.magnitude
     td = td.magnitude
     wspd = wspd.magnitude
-    tlab = '$^\circ$F'
-    wslab = 'kts'
-else:
-    tair = tair.to(units.degF).magnitude
-    td = td.to(units.degF).magnitude
-    wspd = wspd.to(units.kts).magnitude
     tlab = '$^\circ$C'
     wslab = 'm s$^{-1}$'
+    tlab2 = 'degC'
+    wslab2 = 'm/s'
+
+else:
+    print('--Converting to Imperial Units--')
+    tair = tair.to(units.degF).magnitude
+    td = np.array([tx.to(units.degF).magnitude for tx in td])
+    wspd = np.array([wx.to(units.kts).magnitude for wx in wspd])
+    tlab = '$^\circ$F'
+    wslab = 'kts'
+    tlab2 = 'degF'
+    wslab2 = 'kts'
 
 # Calculate Wind Chill
 #wchl = mcalc.windchill(tair_F[:inow+1]*units.degF, wspd_kts[:inow+1]*units.kts)
@@ -143,9 +150,9 @@ t_all = mpdates.date2num(dt_all)
 print('Current conditions at NWC Mesonet:')
 print(f'Date: {datetime.strftime(dt_latest, "%A, %d %B %Y")}')
 print(f'Time: {datetime.strftime(dt_latest, "%H:%M UTC")}')
-print(f'Temperature: {tair[inow]:.1f} degC')
-print(f'Dewpoint: {td[inow]:.1f} degC')
-print(f'Wind Speed: {wspd[inow]:.1f} m/s')
+print(f'Temperature: {tair[inow]:.1f} {tlab2}')
+print(f'Dewpoint: {td[inow]:.1f} {tlab2}')
+print(f'Wind Speed: {wspd[inow]:.1f} {wslab2}')
 print(f'Wind Direction: {wdir[inow]:.0f} deg')
 
 # Plot time series of T, Td, p, wspd, wdir
@@ -154,9 +161,9 @@ figtitle = f'NWC Mesonet Meteogram for {datetime.strftime(dt_now, "%d %B %Y")}'
 plt.suptitle(figtitle, fontsize=20)
 
 # T & Td
-axarr[0].plot(t_all[:inow+1], tair_F[:inow+1], 'r')
+axarr[0].plot(t_all[:inow+1], tair[:inow+1], 'r')
 #axarr[0].plot(t_all[:inow+1], wchl, 'b')
-axarr[0].plot(t_all[:inow+1], td_F, 'g')
+axarr[0].plot(t_all[:inow+1], td, 'g')
 axarr[0].set_title('Temperature and Dewpoint')
 axarr[0].tick_params(labeltop=False, right = True, labelright=True)
 axarr[0].set_ylabel(f'Temperature [{tlab}]')
@@ -171,7 +178,7 @@ axarr[1].grid(axis='y')
 
 # wind speed and direction
 axarr_2 = axarr[2].twinx()
-axarr[2].plot(t_all[:inow+1], wspd_kts[:inow+1], 'b')
+axarr[2].plot(t_all[:inow+1], wspd[:inow+1], 'b')
 axarr_2.plot(t_all[:inow+1], wdir[:inow+1], 'r*', markersize=1)
 axarr[2].set_title('Wind Speed and Direction')
 axarr[2].set_ylabel(f'Wind Speed [{wslab}]', color='b')
@@ -187,15 +194,12 @@ axarr[3].xaxis.set_major_formatter(mpdates.DateFormatter('%H'))
 axarr[3].set_xlabel('Time UTC')
 axarr[3].grid(axis='y')
 
-fig1.tight_layout()
-
 # Save CSV
 if saveFile:
-    saveFileName = f'{saveDir}{datetime.strftime(dt_latest, 
-        "%Y%m%d")}.NWCM.1min.csv'
+    saveFileName = f'{saveDir}{datetime.strftime(dt_latest, "%Y%m%d")}.NWCM.1min.csv'
     headers = ('time', 'relh', 'tair', 'wspd', 'wdir', 'wmax', 'rain', 'pres', 
     	'srad', 'ta9m', 'ws2m', 'skin')
-    fw = open(saveFileName, 'wb')
+    fw = open(saveFileName, 'w')
     writer = csv.writer(fw, delimiter=',')
     writer.writerow(headers)
     for i in range(1440):
@@ -207,7 +211,7 @@ if saveFile:
 
 # Save plot if saveFig = True, else just show
 if saveFig:
-    fig_name = f'{saveDir}NWC_Meteogram_{dt_base.strftime('%Y%m%d')}.pdf'
+    fig_name = f'{saveDir}NWC_Meteogram_{dt_base.strftime("%Y%m%d")}.pdf'
     fig1.savefig(fig_name, format='pdf', dpi=150)
     print(f'Finished saving {fig_name}')
 else:
