@@ -1,3 +1,4 @@
+#!/Users/briangreene/anaconda3/bin/python
 '''
 Fetches 1-minute data from National Weather Center Mesonet tower.
 Displays most recent observations as well as a time series of current day's
