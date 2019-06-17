@@ -166,9 +166,9 @@ figtitle = f'NWC Mesonet Meteogram for {datetime.strftime(dt_now, "%d %B %Y")}'
 plt.suptitle(figtitle, fontsize=20)
 
 # T & Td
-axarr[0].plot(t_all[:inow+1], tair[:inow+1], 'r')
+axarr[0].plot(t_all[:inow+1], tair[:inow+1], color=(213./255, 94./255, 0))
 #axarr[0].plot(t_all[:inow+1], wchl, 'b')
-axarr[0].plot(t_all[:inow+1], td, 'g')
+axarr[0].plot(t_all[:inow+1], td, color=(0, 158./255, 115./255))
 axarr[0].set_title('Temperature and Dewpoint')
 axarr[0].tick_params(labeltop=False, right = True, labelright=True)
 axarr[0].set_ylabel(f'Temperature [{tlab}]')
@@ -178,20 +178,23 @@ axarr[0].grid(axis='y')
 axarr[1].plot(t_all[:inow+1], pres[:inow+1], 'k')
 axarr[1].set_title('Pressure')
 axarr[1].tick_params(labeltop=False, right = True, labelright=True)
-axarr[1].set_ylabel('Pressure[hPa]')
+axarr[1].set_ylabel('Pressure [hPa]')
 axarr[1].grid(axis='y')
 
 # wind speed and direction
 axarr_2 = axarr[2].twinx()
-axarr[2].plot(t_all[:inow+1], wspd[:inow+1], 'b')
-axarr_2.plot(t_all[:inow+1], wdir[:inow+1], 'r*', markersize=1)
+axarr[2].plot(t_all[:inow+1], wspd[:inow+1], color=(0, 114./255, 178./255))
+axarr_2.plot(t_all[:inow+1], wdir[:inow+1], color=(213./255, 94./255, 0), 
+    marker='o', markersize=1, linestyle='')
 axarr[2].set_title('Wind Speed and Direction')
-axarr[2].set_ylabel(f'Wind Speed [{wslab}]', color='b')
-axarr_2.set_ylabel('Wind Direction [$^\circ$]', color='r')
+axarr[2].set_ylabel(f'Wind Speed [{wslab}]', color=(0, 114./255, 178./255))
+axarr_2.set_ylabel('Wind Direction', color=(213./255, 94./255, 0))
+axarr_2.set_yticks(range(0, 405, 45))
+axarr_2.set_yticklabels(['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N'])
 axarr[2].grid(axis='y')
 
 # solar radiation
-axarr[3].plot(t_all[:inow+1], srad[:inow+1], 'orange')
+axarr[3].plot(t_all[:inow+1], srad[:inow+1], color=(230./255, 159./255, 0))
 axarr[3].set_title('Solar Radiation')
 axarr[3].set_ylabel('Solar Radiation [W m$^{-2}$]')
 axarr[3].xaxis.set_major_locator(mpdates.MinuteLocator(interval=60))
