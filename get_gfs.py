@@ -49,9 +49,9 @@ while i_dt <= dt_e:
     i_dt += timedelta(days=1)
 
 # download files
-# for dt in dt_range:
-#     url = f'{url_base}{dt.strftime("%Y%m")}/{dt.strftime("%Y%m%d")}/gfsanl_3_*000.grb2'
-#     os.system(f'cd {save_path}; wget {url}')
+for dt in dt_range:
+    url = f'{url_base}{dt.strftime("%Y%m")}/{dt.strftime("%Y%m%d")}/gfsanl_3_*000.grb2'
+    os.system(f'cd {save_path}; wget {url}')
 
 print('Finished saving grib files.')
 
