@@ -3,8 +3,9 @@ import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.ndimage as ndimage
-import xarray as xr
 import netCDF4
+import os
+from datetime import datetime
 from argparse import ArgumentParser
 
 # Input arguments
@@ -20,6 +21,11 @@ def plot_background(ax):
     ax.add_feature(cfeature.STATES, linewidth=0.5)
     ax.add_feature(cfeature.BORDERS, linewidth=0.5)
 
+# grab valid time from file name
+fname = args.file[0].split(os.sep)[-1]
+d_valid = fname[9:22]
+dt_valid = datetime.strptime(d_valid, '%Y%m%d_%H%M')
+
 # load gfs data - northern hemisphere
 df = netCDF4.Dataset(args.file[0], 'r')
 lon = df.variables['lon_0'][:]
@@ -31,7 +37,10 @@ i300 = np.where(df.variables['lv_ISBL0'][:] == 30000.)[0][0]
 u300 = df.variables['UGRD_P0_L100_GLL0'][i300, iN, :]
 v300 = df.variables['VGRD_P0_L100_GLL0'][i300, iN, :]
 z300 = df.variables['HGT_P0_L100_GLL0'][i300, iN, :]
-psfc = df.variables['PRES_P0_L1_GLL0'][iN, :] / 100.
+psfc = df.variables['PRMSL_P0_L101_GLL0'][iN, :] / 100.
+# PRES_P0_L1_GLL0
+# PRMSL_P0_L101_GLL0
+# MSLET_P0_L101_GLL0
 Tsfc = df.variables['TMP_P0_L1_GLL0'][iN, :] - 273.15
 
 # calculate speed from u and v
@@ -67,6 +76,8 @@ ax1[1].clabel(c2, fontsize=10, inline=1, inline_spacing=1, fmt='%i',
 ax1[1].set_title('Surface Temperature and Pressure')
 cb2 = fig1.colorbar(cf2, ax=ax1[1], orientation='horizontal', shrink=0.74, pad=0)
 cb2.set_label('deg C', size='x-large')
+
+plt.suptitle(f'GFS Analysis Valid {dt_valid.strftime("%d-%B-%Y %H UTC")}')
 
 plt.show()
 
