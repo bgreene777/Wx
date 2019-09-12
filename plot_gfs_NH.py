@@ -2,8 +2,8 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.ndimage as ndimage
 import netCDF4
+import cmocean
 import os
 from datetime import datetime
 from argparse import ArgumentParser
@@ -70,7 +70,11 @@ for f in np.asarray(args.files)[idx]:
         plot_background(a)
 
     # 300 mb heights and winds
-    cf1 = ax1[0].contourf(lon_2d, lat_2d, spd300, cmap='cool',
+    vmin1 = 0.
+    vmax1 = 120.
+    lvl1 = np.linspace(vmin1, vmax1, num=9)
+    cf1 = ax1[0].contourf(lon_2d, lat_2d, spd300, cmap=cmocean.cm.dense, 
+                          vmin=0., vmax = 120., levels=lvl1,
                           transform=ccrs.PlateCarree())
     c1 = ax1[0].contour(lon_2d, lat_2d, z300, colors='black', linewidths=2,
                         transform=ccrs.PlateCarree())
@@ -82,7 +86,11 @@ for f in np.asarray(args.files)[idx]:
     cb1.set_label('knots', size='x-large')
 
     # surface pressure and temperature
-    cf2 = ax1[1].contourf(lon_2d, lat_2d, Tsfc, cmap='YlOrRd',
+    vmin2 = -60.
+    vmax2 = 30.
+    lvl2 = np.linspace(vmin2, vmax2, num=10)
+    cf2 = ax1[1].contourf(lon_2d, lat_2d, Tsfc, cmap=cmocean.cm.thermal,
+                          vmin=-60., vmax=30., levels=lvl2,
                           transform=ccrs.PlateCarree(), zorder=0)
     c2 = ax1[1].contour(lon_2d, lat_2d, psfc, colors='black', linewidths=2,
                         transform=ccrs.PlateCarree())
