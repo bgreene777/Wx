@@ -205,21 +205,6 @@ axarr[3].grid(axis='y')
 # add logo
 fig1.figimage(logo, 50, 0, zorder=100)
 
-# Save CSV
-# if saveFile:
-#     saveFileName = f'{saveDir}{datetime.strftime(dt_latest, "%Y%m%d")}.NWCM.1min.csv'
-#     headers = ('time', 'relh', 'tair', 'wspd', 'wdir', 'wmax', 'rain', 'pres', 
-#     	'srad', 'ta9m', 'ws2m', 'skin')
-#     fw = open(saveFileName, 'w')
-#     writer = csv.writer(fw, delimiter=',')
-#     writer.writerow(headers)
-#     for i in range(1440):
-#         writer.writerow( (time[i], relh[i], tair[i], wspd[i], wdir[i], wmax[i], 
-#         	rain[i], pres[i], srad[i], ta9m[i], ws2m[i], skin[i]) )
-
-#     fw.close()
-#     print(f'Finished saving {saveFileName.split("/")[-1]}')
-
 # Save plot if saveFig = True, else just show
 if saveFig:
     fig_name = f'{saveDir}NWC_Meteogram_{dt_base.strftime("%Y%m%d")}.pdf'
