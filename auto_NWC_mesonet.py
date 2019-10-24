@@ -25,7 +25,7 @@ sdir = '/Users/briangreene/Desktop/NWCmesonet/'
 py = '/Users/briangreene/anaconda3/bin/python'
 
 # Command line argument
-s = f'{py} {file} -n False -d {str_yesterday} -f True -s True -save {sdir} -si True'
+s = f'{py} {file} -d {str_yesterday} -f -s {sdir} -si'
 
 # Execute command
 os.system(s)
