@@ -22,14 +22,12 @@ import csv
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-parser.add_argument('-n', '--now', required=True, action='store_true', dest='now',
+parser.add_argument('-n', '--now', action='store_true', dest='now',
     help='Use current observations? Default is false')
 parser.add_argument('-d', '--date', required=False, action='store', dest='date', nargs=1,
     help='Input date as yyyymmdd, or leave blank for latest observations')
 parser.add_argument('-f', '--figure', action='store_true', dest='fig',
     help='Save figure? Default is false')
-# parser.add_argument('-s', required=True, action='store', dest='file', nargs=1,
-#     help='Save file? True or False')
 parser.add_argument('-s', '--savedir', required=True, action='store', dest='savedir',
     nargs=1, help='Enter the save directory for file and figure')
 parser.add_argument('-si', action='store_true', dest='SI',
@@ -41,21 +39,18 @@ logo_path = '/Users/briangreene/Desktop/mesonet_logo.png'
 logo = plt.imread(logo_path)
 
 # Location to save output files and figures
-if args.fig[0]:
+if args.fig:
     saveFig = True
 else:
     saveFig = False
 
-if saveFig | saveFile:
-    saveDir = args.savedir[0]
-else:
-    saveDir = ''
+saveDir = args.savedir[0]
 
 # Base URL
 base_URL = 'http://www.mesonet.org/data/public/nwc/mts-1m/'
 
 # Find today's date and time
-if args.now[0]:
+if args.now:
     now = True
     dt_now = datetime.utcnow()
 else:
@@ -73,7 +68,7 @@ mi = dt_now.minute
 mts_URL = f'{base_URL}{yr}/{mo:02d}/{da:02d}/{yr:02d}{mo:02d}{da:02d}nwcm.mts'
 
 # Fetch and save data
-saveFileName = f'{saveDir}{datetime.strftime(dt_latest, "%Y%m%d")}.NWCM.1min.csv'
+saveFileName = f'{saveDir}{datetime.strftime(dt_now, "%Y%m%d")}.NWCM.1min.csv'
 r = requests.get(mts_URL)
 with open(saveFileName, 'wb') as f:
     f.write(r.content)
@@ -94,6 +89,12 @@ ta9m = df[:, 11].astype(float)
 ws2m = df[:, 12].astype(float)
 skin = df[:, 13].astype(float)
 
+# Find latest valid timestep
+if now:
+    inow = next((i for i, x in enumerate(relh) if x<0), None) - 1
+else:
+    inow = -2
+
 # remove bad data
 relh[relh < -100.] = np.nan
 tair[tair < -100.] = np.nan
@@ -107,18 +108,12 @@ ta9m[ta9m < -100.] = np.nan
 ws2m[ws2m < -100.] = np.nan
 skin[skin < -100.] = np.nan
 
-# Find latest valid timestep
-if now:
-    inow = next((i for i, x in enumerate(relh) if x<0), None) - 1
-else:
-    inow = -2
-
 # Convert RH to Td - already read in as degC and m/s
 tair = tair * units.degC
 wspd = wspd * units.m / units.s
 td = mcalc.dewpoint_rh(tair[:inow+1], relh[:inow+1] / 100.)
 
-if args.SI[0].upper() == 'TRUE':
+if args.SI:
     # already in SI, just grab magnitudes
     print('--Using SI Units--')
     tair = tair.magnitude
