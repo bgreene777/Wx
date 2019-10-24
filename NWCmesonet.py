@@ -12,6 +12,7 @@ Updated for use with Python 3, includes command line arguments
 
 import numpy as np
 import urllib3
+import requests
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mpdates
@@ -21,18 +22,18 @@ import csv
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-parser.add_argument('-n', required=True, action='store', dest='now', nargs=1,
-    help='Use current observations? True or False')
-parser.add_argument('-d', required=False, action='store', dest='date', nargs=1,
+parser.add_argument('-n', '--now', required=True, action='store_true', dest='now',
+    help='Use current observations? Default is false')
+parser.add_argument('-d', '--date', required=False, action='store', dest='date', nargs=1,
     help='Input date as yyyymmdd, or leave blank for latest observations')
-parser.add_argument('-f', required=True, action='store', dest='fig', nargs=1,
-    help='Save figure? True or False')
-parser.add_argument('-s', required=True, action='store', dest='file', nargs=1,
-    help='Save file? True or False')
-parser.add_argument('-save', required=False, action='store', dest='savedir',
+parser.add_argument('-f', '--figure', action='store_true', dest='fig',
+    help='Save figure? Default is false')
+# parser.add_argument('-s', required=True, action='store', dest='file', nargs=1,
+#     help='Save file? True or False')
+parser.add_argument('-s', '--savedir', required=True, action='store', dest='savedir',
     nargs=1, help='Enter the save directory for file and figure')
-parser.add_argument('-si', required=True, action='store', dest='SI',
-    nargs=1, help='Use SI units? True or False')
+parser.add_argument('-si', action='store_true', dest='SI',
+    help='Use SI units? Default is false')
 args = parser.parse_args()
 
 # Logo
@@ -40,15 +41,10 @@ logo_path = '/Users/briangreene/Desktop/mesonet_logo.png'
 logo = plt.imread(logo_path)
 
 # Location to save output files and figures
-if args.fig[0].upper() == 'TRUE':
+if args.fig[0]:
     saveFig = True
 else:
     saveFig = False
-
-if args.file[0].upper() == 'TRUE':
-    saveFile = True
-else:
-    saveFile = False
 
 if saveFig | saveFile:
     saveDir = args.savedir[0]
@@ -57,10 +53,9 @@ else:
 
 # Base URL
 base_URL = 'http://www.mesonet.org/data/public/nwc/mts-1m/'
-http = urllib3.PoolManager()
 
 # Find today's date and time
-if args.now[0].upper() == 'TRUE':
+if args.now[0]:
     now = True
     dt_now = datetime.utcnow()
 else:
@@ -77,29 +72,40 @@ mi = dt_now.minute
 # Construct url for mts file
 mts_URL = f'{base_URL}{yr}/{mo:02d}/{da:02d}/{yr:02d}{mo:02d}{da:02d}nwcm.mts'
 
-# Fetch data
-df = http.request('GET', mts_URL)
-df_line = df.data.decode('ascii').split('\n')
-df_line = df_line[3:-1]
+# Fetch and save data
+saveFileName = f'{saveDir}{datetime.strftime(dt_latest, "%Y%m%d")}.NWCM.1min.csv'
+r = requests.get(mts_URL)
+with open(saveFileName, 'wb') as f:
+    f.write(r.content)
 
-# Load into arrays
-time, relh, tair, wspd, wdir, wmax, rain, pres, srad, ta9m, ws2m, skin = (
-	[] for i in range(12))
+# Load new data file
+df = np.genfromtxt(saveFileName, skip_header=3, autostrip='True', dtype=str)
 
-for i in range(1440):
-	data_short = df_line[i].split()
-	time.append(float(data_short[2]))
-	relh.append(float(data_short[3]))
-	tair.append(float(data_short[4]))
-	wspd.append(float(data_short[5]))
-	wdir.append(float(data_short[6]))
-	wmax.append(float(data_short[7]))
-	rain.append(float(data_short[8]))
-	pres.append(float(data_short[9]))
-	srad.append(float(data_short[10]))
-	ta9m.append(float(data_short[11]))
-	ws2m.append(float(data_short[12]))
-	skin.append(float(data_short[13]))
+time = df[:, 2].astype(float)
+relh = df[:, 3].astype(float)
+tair = df[:, 4].astype(float)
+wspd = df[:, 5].astype(float)
+wdir = df[:, 6].astype(float)
+wmax = df[:, 7].astype(float)
+rain = df[:, 8].astype(float)
+pres = df[:, 9].astype(float)
+srad = df[:, 10].astype(float)
+ta9m = df[:, 11].astype(float)
+ws2m = df[:, 12].astype(float)
+skin = df[:, 13].astype(float)
+
+# remove bad data
+relh[relh < -100.] = np.nan
+tair[tair < -100.] = np.nan
+wspd[wspd < -100.] = np.nan
+wdir[wdir < -100.] = np.nan
+wmax[wmax < -100.] = np.nan
+rain[rain < -100.] = np.nan
+pres[pres < -100.] = np.nan
+srad[srad < -100.] = np.nan
+ta9m[ta9m < -100.] = np.nan
+ws2m[ws2m < -100.] = np.nan
+skin[skin < -100.] = np.nan
 
 # Find latest valid timestep
 if now:
@@ -108,9 +114,8 @@ else:
     inow = -2
 
 # Convert RH to Td - already read in as degC and m/s
-tair = np.array(tair) * units.degC
-relh = np.array(relh)
-wspd = np.array(wspd) * units.m / units.s
+tair = tair * units.degC
+wspd = wspd * units.m / units.s
 td = mcalc.dewpoint_rh(tair[:inow+1], relh[:inow+1] / 100.)
 
 if args.SI[0].upper() == 'TRUE':
@@ -206,19 +211,19 @@ axarr[3].grid(axis='y')
 fig1.figimage(logo, 50, 0, zorder=100)
 
 # Save CSV
-if saveFile:
-    saveFileName = f'{saveDir}{datetime.strftime(dt_latest, "%Y%m%d")}.NWCM.1min.csv'
-    headers = ('time', 'relh', 'tair', 'wspd', 'wdir', 'wmax', 'rain', 'pres', 
-    	'srad', 'ta9m', 'ws2m', 'skin')
-    fw = open(saveFileName, 'w')
-    writer = csv.writer(fw, delimiter=',')
-    writer.writerow(headers)
-    for i in range(1440):
-        writer.writerow( (time[i], relh[i], tair[i], wspd[i], wdir[i], wmax[i], 
-        	rain[i], pres[i], srad[i], ta9m[i], ws2m[i], skin[i]) )
+# if saveFile:
+#     saveFileName = f'{saveDir}{datetime.strftime(dt_latest, "%Y%m%d")}.NWCM.1min.csv'
+#     headers = ('time', 'relh', 'tair', 'wspd', 'wdir', 'wmax', 'rain', 'pres', 
+#     	'srad', 'ta9m', 'ws2m', 'skin')
+#     fw = open(saveFileName, 'w')
+#     writer = csv.writer(fw, delimiter=',')
+#     writer.writerow(headers)
+#     for i in range(1440):
+#         writer.writerow( (time[i], relh[i], tair[i], wspd[i], wdir[i], wmax[i], 
+#         	rain[i], pres[i], srad[i], ta9m[i], ws2m[i], skin[i]) )
 
-    fw.close()
-    print(f'Finished saving {saveFileName.split("/")[-1]}')
+#     fw.close()
+#     print(f'Finished saving {saveFileName.split("/")[-1]}')
 
 # Save plot if saveFig = True, else just show
 if saveFig:
