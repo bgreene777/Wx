@@ -6,19 +6,17 @@ T, Td, wind speed, and wind direction.
 
 Written by Brian Greene
 University of Oklahoma
-Last edit: 10 June 2019
+Last edit: 25 October 2019
 Updated for use with Python 3, includes command line arguments
 '''
 
 import numpy as np
-import urllib3
 import requests
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mpdates
 import metpy.calc as mcalc
 from metpy.units import units
-import csv
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
