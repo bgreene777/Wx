@@ -29,3 +29,8 @@ s = f'{py} {file} -d {str_yesterday} -f -s {sdir} -si'
 
 # Execute command
 os.system(s)
+
+# Do again in Imperial
+sdir = '/Users/briangreene/Desktop/NWCmesonetF/'
+sF = f'{py} {file} -d {str_yesterday} -f -s {sdirF}'
+os.system(sF)
