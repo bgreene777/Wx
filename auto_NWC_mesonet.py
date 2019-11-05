@@ -31,6 +31,6 @@ s = f'{py} {file} -d {str_yesterday} -f -s {sdir} -si'
 os.system(s)
 
 # Do again in Imperial
-sdir = '/Users/briangreene/Desktop/NWCmesonetF/'
+sdirF = '/Users/briangreene/Desktop/NWCmesonetF/'
 sF = f'{py} {file} -d {str_yesterday} -f -s {sdirF}'
 os.system(sF)
