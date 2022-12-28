@@ -1,0 +1,5 @@
+# yaml files
+*.yaml
+
+# ipynb checkpoints
+.ipynb_checkpoints
