@@ -8,7 +8,9 @@
 # Displays most recent observations as well as a time series of current day's
 # T, Td, wind speed, and wind direction.
 # --------------------------------
+import yaml
 import requests
+import os
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -45,6 +47,7 @@ def plot_NWC(date, savedir=None):
     da = date.day
     # Construct url for mts file
     mts_URL = f"{base_URL}{yr:04d}/{mo:02d}/{da:02d}/{yr:04d}{mo:02d}{da:02d}nwcm.mts"
+    print(f"Fetching file from {mts_URL}")
     # Fetch data
     r = requests.get(mts_URL)
     # parse data
@@ -151,6 +154,7 @@ def plot_NWC(date, savedir=None):
     df["SRAD"].attrs["color2"] = (245./255, 170./255, 95./255)
 
     # begin plotting
+    print("Begin plotting...")
     fig, ax = plt.subplots(nrows=4, ncols=1, sharex=True, figsize=(14.8, 12),
                            constrained_layout=True)
     # title figure
@@ -246,6 +250,9 @@ def plot_NWC(date, savedir=None):
 
     # Save plot if saveFig = True, else just show
     if savedir is not None:
+        # make sure path exists
+        if not os.path.exists(savedir):
+            os.mkdir(savedir)
         fig_name = f"{savedir}NWC_Meteogram_{date.strftime('%Y%m%d')}.pdf"
         fig.savefig(fig_name, format="pdf")
         print(f"Finished saving {fig_name}")
@@ -256,8 +263,10 @@ def plot_NWC(date, savedir=None):
 # Run script if desired
 # --------------------------------
 if __name__ == "__main__":
+    # load yaml file
+    with open("NWCmesonet.yaml") as f:
+        config = yaml.safe_load(f)
     # day = datetime(2022, 12, 22)
-    days = pd.date_range(start="20220101", end="20221226", freq="D")
-    dirsave = "/Users/briangreene/Documents/WxUAS/outputFigures/NWCmesonet/2022/"
+    days = pd.date_range(start="20210101", end="20211231", freq="D")
     for day in days:
-        plot_NWC(day, dirsave)
+        plot_NWC(day, config["sdir_local"])
